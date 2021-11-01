@@ -1,0 +1,298 @@
+---
+title: "Homework 9"
+subtitle: Managerial Statistics
+author: "Leticia Liakopulos"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+This R Notebook file *homework9.Rmd* contains the questions and 
+the R chunks to answer them. 
+
+The data (stored in mtcars491.csv) was extracted from the Motor Trend 
+US magazine, and comprise fuel consumption and 10 aspects of automobile
+design and performance for 32 automobiles.
+
+#### Variables:
+mpg	  : Miles/(US) gallon    
+cyl	  : Number of cylinders     
+disp  :	Displacement (cu.in.). Overall volume in the engine.     
+hp	  : Gross horsepower     
+drat  :	Rear axle ratio      
+wt	  : Weight (1000 lbs)       
+qsec  :	1/4 mile time. Fastest time to travel 1/4 miles from standstill.    
+engine: Engine type  (v = V-shaped, s = straight)     
+trans : Transmission (a = automatic,  m = manual)      
+gear  :	Number of forward gears (three=1, four=4, five=5)     
+carb  :	Number of carburetors      
+
+#### Initial Work
+0. Download the homework9A.Rmd and mtcars491.csv files 
+   from the course website.     
+
+Read data from mtcars491.csv and assign it to the object car.
+```{r}
+mtcars <- read.csv("mtcars491.csv")
+attach(mtcars)
+```
+
+#### Question 1. Introduction and Descriptive Statistics		  CLASS 1      
+
+What is the mean mpg of the cars in this data?
+```{r}
+mean(mpg)
+```
+(b)	Calculate the mean mpg's of the cars with automatic and manual
+    transmissions separately.
+```{r}
+tapply(mtcars$mpg, mtcars$trans, mean)
+```
+
+(c)	What proportion of the cars in this data have automatic transmissions?
+```{r}
+prop.table(table(mtcars$trans))
+```
+**Answer**    
+
+(d) Boxplots of mpg for the cars with automatic and manual transmissions.
+```{r}
+boxplot(mpg~trans, data=mtcars, col="red", names=c("automatic","manual"))
+```
+
+(e)	Display the histogram of the mpg's.
+```{r}
+hist(mpg, col = "orange")
+```
+
+#### Question 2. Normal Distribution and Central Limit Theorem	  CLASS 2     
+The EPA states that the city mpg's of Toyota Prius are normally distributed with a mean (mu) of 30 and a standard deviation (sigma) of 4 miles.
+
+What is the probability that 	    				
+(a)	a randomly selected Prius will have a city mpg less than 34 miles?
+```{r}
+pnorm(34,30,4)
+```
+
+(b) a randomly selected Prius will have a city mpg between 26 and 34 miles?
+```{r}
+pnorm(34,30,4)-pnorm(26,30,4)
+```
+
+(c) a randomly selected Prius will have a city mpg higher than 36 miles?
+```{r}
+pnorm(36,30,4)
+```
+
+(d) Suppose now that 16 cars (Prius) are randomly selected. What is the
+    probability that their mean city mpg will be less than 28 miles?				
+```{r}
+pnorm(28,30,1)
+```
+
+#### Question 3. Interval Estimation		       CLASS 3         
+(a)	Based on the sample results, What is the point estimate 
+    for the mean mpg (mu) of all cars?	
+```{r}
+mean(mtcars$mpg)
+```
+
+(b)	Based on the sample results, determine 95% confidence
+interval estimate for the mean mpg (mu) all cars.
+```{r}
+t.test(mtcars$mpg)
+```
+**Answer:**  95% CIE= LL= 17.91768 UL= 22.26357         
+
+
+#### Question 4. Hypothesis Testing (One-Sample Test)		    CLASS 4         
+(a)	The past historical data showed that the mean mpg of the cars was 
+    18 miles. Due to the improvements in the design technology, it is
+    claimed that the mean mpg has increased. Does the sample data
+    provide a strong evidence to indicate that the mean GPA has
+    increased at a significance level (alpha) of 0.05?
+    
+```{r}
+options(scipen=999)
+```
+
+
+(i) State the hypotheses:        
+**Answer**    
+Hypotheses:     
+Ho: x > mu                   
+HA: x <= mu                  
+
+Calculate the test statistic and critical value.
+```{r}
+t.test(mtcars$mpg, mu=18, alt ="greater", conf.level=0.95)
+```
+
+(ii) Decision Rule:     
+**Answer**    
+Reject Ho if p_value < 0.05
+
+(iii) Decision:     
+**Answer**        
+p= 0.02938 < 0.05
+Reject Null.
+
+(iv) Conclusion:     
+**Answer**   
+The sample provides enough evidence that the mu of mpg has increased.
+
+#### Question 6. Two-Sample and Multiple Sample Tests	 	  CLASS 6     
+(a)	Does the sample show if there is significant difference between 
+the mean mpg's of cars with automatic and manual transmissions at a significance level of 0.05?
+
+(i) State the hypotheses:          
+**Answer**      
+Hypotheses:    
+Ho: muA = muB       
+HA: muA  ≠ muB      
+
+Calculate the test statistic and critical value.
+```{r}
+t.test(mpg~trans, data=mtcars)
+```
+(ii) Decision Rule:     
+**Answer**    
+Reject Ho if p-value < a=0.05
+Do not reject Ho if p-value > a=0.05 
+
+(iii) Decision:       
+**Answer**    
+p-value= 0.001374 < a= 0.05
+
+(iv) Conclusion:    
+**Answer**
+Reject Ho. The mean mpg for manual and automatic transmissions are not the same.
+
+   
+(b)	Does the sample show if the the mean mpg's of the car with 
+    different number of gears are the same (or not the same) at
+    a significance level of 0.05?
+
+(i) State the hypotheses:    
+**Answer**   
+Hypotheses:
+Ho: muA = muB= muC    
+HA: Not all the same ( at least one is different) 
+
+Calculate the test statistic and critical value.
+```{r}
+TestGEAR <- aov(mpg~gear, data=mtcars)
+summary(TestGEAR)
+```
+
+(ii) Decision Rule:    
+**Answer**    
+Reject Ho if p-value < a=0.05
+Do not reject Ho if p-value > a=0.05   
+
+(iii) Decision:      
+**Answer**    
+p=0.000295 < a=0.05
+
+(iv) Conclusion:      
+**Answer**
+Do not reject Ho. The mpg for the cars with different number of gears is not 
+the same.
+   
+
+(c) If the mean mpg's are different, which number of gears have 
+have a different mean mpg from each other at a significance level of 0.05?
+```{r}
+TukeyHSD(TestGEAR)
+```
+**Answer**     
+The number of gears that have a different mpg at a significance level of 0.05 are three and four.
+
+#### Question 8. Regression		         CLASS 7 and 8         
+You want to predict the mpgs by using a regression model.
+
+(a)	Using R, obtain the multiple regression model (M2) to predict 
+    the mpg's of the cars by using the following 2 variables 
+    (qsec=1/4 mile time and trans=transmission)
+```{r}
+R2<- lm(mpg~ qsec+trans, data=mtcars)
+```
+
+(b)	Display the summary output of the regression model (R6).
+```{r}
+summary(R2)
+```
+
+(c) What is the estimated regression equation?    
+**Answer** 
+y= -18.8893 + 1.9819X1 + 8.8763X2
+
+
+(d) What does the coefficient of trans (b2) tell us?     
+    i.e., What is the interpretation of b2?    
+**Answer** 
+The coefficient of trans(b2)=8.8763 indicates the change in the mpg of a car with automatic and manual transmition.
+
+
+(e) Which independent variables are not significant in this
+    regression at a significance level of 0.05?        
+**Answer**  
+All variables are significant since all of their p-values are lower than 0.05.
+  
+
+(f) What percentage of the total variation is explained 
+    by this regression?        
+**Answer**   
+68.68% of the total variation of the mpg is explained in the regression.
+
+
+#### Question 9. Stepwise Regression     CLASS 9     
+(a)	Use the backward elimination method to determine the
+    explanatory (x) variables to be used in a final model.
+```{r}
+fitAll <- lm(mpg~., data=mtcars)
+summary(fitAll)
+step(fitAll, direction = "backward")
+```
+
+(b1)	Which explanatory variables are to be included in the final model?   
+**Answer**    
+wt, qsec, trans
+
+(b2) Obtain the regression model using the variables selected
+    by the stepwise regression.
+```{r}
+M3<- lm(mpg~ wt+ qsec+ trans, data=mtcars)
+summary(M3)
+```
+
+(c) What percentage of the total variation is explained by 
+    this regression?      
+**Answer**
+84.97% of the total variation is explained on this regression.
+
+
+
+(d)	Using this regression model obtained above in (b2), 
+    calculate 95% confidence interval estimate (CIE) for 
+    the mean mpg of all cars with the following values:    
+ mpg cyl disp  hp  drat   wt  qsec engine trans gear carb    
+21.0	6	 230  140	 3.60  3.20 18.0   v      m   four   3    
+```{r}
+predict(M3 , data.frame(mpg=21.0, cyl=6, disp=230, hp=140, drat=3.60, wt=3.20, qsec=18.0, engine="v", trans="m", gear="four", carb=3) ,interval = "confidence")
+```
+
+## After completing your R codes, create an html file 
+that will contain       
+   -	all the codes       
+   -	executed outputs and      
+   -	answers the follow-up questions, if there is any.    
+
+Complete the following steps to create the html file:    
+Step 1. Execute each code chunk one by one (starting from the first chunk)    
+Step 2. Save the file (Save As…). Use file name:  homework9    
+
+If you have completed Step 1 correctly, then Step 2 will save your Rmd file and (at the same time) will create an html file on your working directory. 
+
+Submit this html file as your homework9 on Sakai.
+
